@@ -34,19 +34,28 @@ async function run() {
 
         // api endpoint for getting lawyer data
         app.get('/lawyers', async (req, res) => {
-            const limit = parseInt(req.query.limit) || 0;
-            
-            let cursor = lawyersCollection.find();
-            if (limit > 0) {
-                cursor = cursor.limit(limit);
+            const { search, specialization } = req.query;
+            let query = {};
+
+            if (search) {
+                query.name = { $regex: search, $options: 'i' }; 
             }
-            
-            const result = await cursor.toArray();
-            res.send({ result });
+
+            if (specialization) {
+                query.specialization = specialization;
+            }
+
+            try {
+                const cursor = lawyersCollection.find(query);
+                const result = await cursor.toArray();
+                res.send({ result });
+            } catch (error) {
+                res.status(500).send({ message: "Error fetching lawyers data" });
+            }
         });
 
 
-        
+
     } finally {
     }
 }
