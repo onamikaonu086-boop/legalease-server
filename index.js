@@ -25,6 +25,27 @@ async function run() {
     try {
         await client.connect();
         console.log("database connected successfully");
+
+
+        // database and collection
+        const db = client.db("legalEaseDB");
+        const lawyersCollection = db.collection("lawyers");
+
+
+        // api endpoint for getting lawyer data
+        app.get('/lawyers', async (req, res) => {
+            const limit = parseInt(req.query.limit) || 0;
+            
+            let cursor = lawyersCollection.find();
+            if (limit > 0) {
+                cursor = cursor.limit(limit);
+            }
+            
+            const result = await cursor.toArray();
+            res.send({ result });
+        });
+
+
         
     } finally {
     }
