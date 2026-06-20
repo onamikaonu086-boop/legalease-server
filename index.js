@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
@@ -38,7 +38,7 @@ async function run() {
             let query = {};
 
             if (search) {
-                query.name = { $regex: search, $options: 'i' }; 
+                query.name = { $regex: search, $options: 'i' };
             }
 
             if (specialization) {
@@ -54,6 +54,21 @@ async function run() {
             }
         });
 
+
+        // get individual lawyer data
+        app.get('/lawyer/:id', async (req, res) => {
+            const id = req.params.id;
+            try {
+                const query = { _id: new ObjectId(id) };
+                const result = await lawyersCollection.findOne(query);
+                if (!result) {
+                    return res.status(404).send({ message: "Lawyer not found" });
+                }
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Invalid ID or server error" });
+            }
+        });
 
 
     } finally {
