@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const app = express();
@@ -11,6 +13,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri, {
@@ -30,6 +33,31 @@ async function run() {
         // database and collection
         const db = client.db("legalEaseDB");
         const lawyersCollection = db.collection("lawyers");
+
+
+
+        // ------------------ AUTH / JWT API ------------------
+        app.post('/jwt', async (req, res) => {
+            const user = req.body; 
+
+          
+            const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+           
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            }).send({ success: true });
+        });
+
+        app.post('/logout', async (req, res) => {
+            res.clearCookie('token', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            }).send({ success: true });
+        });
 
 
         // api endpoint for getting lawyer data
