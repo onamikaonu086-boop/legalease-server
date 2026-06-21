@@ -29,26 +29,84 @@ async function run() {
         await client.connect();
         console.log("database connected successfully");
 
-
-        // database and collection
+        // database and collections
         const db = client.db("legalEaseDB");
         const lawyersCollection = db.collection("lawyers");
-
-
+        const usersCollection = db.collection("users");
 
         // ------------------ AUTH / JWT API ------------------
+    
         app.post('/jwt', async (req, res) => {
             const user = req.body; 
+            
+            const query = { email: user.email };
+            const existingUser = await usersCollection.findOne(query);
+            
+            let userProfile = existingUser;
+            if (!existingUser) {
+                const newUser = {
+                    name: user.name,
+                    email: user.email,
+                    image: user.image || "",
+                    role: 'user' 
+                };
+                await usersCollection.insertOne(newUser);
+                userProfile = newUser;
+            }
 
-          
-            const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '7d' });
+            const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '7d' });
 
-           
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-            }).send({ success: true });
+            }).send({ success: true, token, user: userProfile }); 
+        });
+
+        app.post('/register', async (req, res) => {
+            const { name, email, password, image } = req.body;
+
+            const existingUser = await usersCollection.findOne({ email });
+            if (existingUser) {
+                return res.status(400).send({ message: "User already exists with this email" });
+            }
+
+            const newUser = { name, email, password, image, role: 'user' };
+            await usersCollection.insertOne(newUser);
+
+            const token = jwt.sign({ email }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '7d' });
+
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            }).send({ success: true, token, user: newUser });
+        });
+
+        app.post('/login', async (req, res) => {
+            const { email, password } = req.body;
+            
+            const user = await usersCollection.findOne({ email, password });
+            if (!user) {
+                return res.status(401).send({ message: "Invalid email or password" });
+            }
+
+            const token = jwt.sign({ email }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '7d' });
+
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            }).send({ success: true, token, user });
+        });
+
+        app.get('/user/role/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await usersCollection.findOne({ email });
+            if (!user) {
+                return res.send({ role: 'user' });
+            }
+            res.send({ role: user.role || 'user' });
         });
 
         app.post('/logout', async (req, res) => {
@@ -59,8 +117,7 @@ async function run() {
             }).send({ success: true });
         });
 
-
-        // api endpoint for getting lawyer data
+        // ------------------ LAWYERS API ------------------
         app.get('/lawyers', async (req, res) => {
             const { search, specialization } = req.query;
             let query = {};
@@ -82,8 +139,6 @@ async function run() {
             }
         });
 
-
-        // get individual lawyer data
         app.get('/lawyer/:id', async (req, res) => {
             const id = req.params.id;
             try {
@@ -97,7 +152,6 @@ async function run() {
                 res.status(500).send({ message: "Invalid ID or server error" });
             }
         });
-
 
     } finally {
     }
