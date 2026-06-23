@@ -166,6 +166,16 @@ async function run() {
             }
         });
 
+        app.get('/user/hiring-history/:email', async (req, res) => {
+            const email = req.params.email;
+            try {
+                const result = await hiringsCollection.find({ clientEmail: email }).toArray();
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Error loading hiring history" });
+            }
+        });
+
     } finally {
     }
 }
