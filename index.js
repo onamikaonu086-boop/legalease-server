@@ -259,6 +259,16 @@ async function run() {
             }
         });
 
+        app.get('/reviews/user/:email', async (req, res) => {
+            const email = req.params.email;
+            try {
+                const result = await reviewsCollection.find({ clientEmail: email }).toArray();
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Failed to fetch user reviews" });
+            }
+        });
+
     } finally {
     }
 }
