@@ -307,6 +307,17 @@ async function run() {
             }
         });
 
+        // ------------------ADMIN ANALYTICS & TRANSACTIONS API ------------------
+        app.get('/admin/transactions', async (req, res) => {
+            try {
+                const query = { status: 'paid' };
+                const result = await hiringsCollection.find(query).toArray();
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Failed to fetch transactions" });
+            }
+        });
+
     } finally {
     }
 }
