@@ -291,6 +291,22 @@ async function run() {
             }
         });
 
+
+        app.patch('/users/role/:id', async (req, res) => {
+            const id = req.params.id;
+            const { role } = req.body;
+            try {
+                const filter = { _id: new ObjectId(id) };
+                const updatedDoc = {
+                    $set: { role: role }
+                };
+                const result = await usersCollection.updateOne(filter, updatedDoc);
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Failed to update user role" });
+            }
+        });
+
     } finally {
     }
 }
