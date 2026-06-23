@@ -36,20 +36,20 @@ async function run() {
         const hiringsCollection = db.collection("hirings");
 
         // ------------------ AUTH / JWT API ------------------
-    
+
         app.post('/jwt', async (req, res) => {
-            const user = req.body; 
-            
+            const user = req.body;
+
             const query = { email: user.email };
             const existingUser = await usersCollection.findOne(query);
-            
+
             let userProfile = existingUser;
             if (!existingUser) {
                 const newUser = {
                     name: user.name,
                     email: user.email,
                     image: user.image || "",
-                    role: 'user' 
+                    role: 'user'
                 };
                 await usersCollection.insertOne(newUser);
                 userProfile = newUser;
@@ -61,7 +61,7 @@ async function run() {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-            }).send({ success: true, token, user: userProfile }); 
+            }).send({ success: true, token, user: userProfile });
         });
 
         app.post('/register', async (req, res) => {
@@ -86,7 +86,7 @@ async function run() {
 
         app.post('/login', async (req, res) => {
             const { email, password } = req.body;
-            
+
             const user = await usersCollection.findOne({ email, password });
             if (!user) {
                 return res.status(401).send({ message: "Invalid email or password" });
@@ -157,7 +157,7 @@ async function run() {
 
         // ------------------HIRING SYSTEM API ------------------
         app.post('/hiring-request', async (req, res) => {
-            const hiringData = req.body; 
+            const hiringData = req.body;
             try {
                 const result = await hiringsCollection.insertOne(hiringData);
                 res.send({ success: true, insertedId: result.insertedId });
@@ -196,6 +196,26 @@ async function run() {
                 res.send(result);
             } catch (error) {
                 res.status(500).send({ message: "Error updating status" });
+            }
+        });
+
+        // ------------------ STRIPE PAYMENT API ------------------
+
+        app.post('/create-payment-intent', async (req, res) => {
+            const { price } = req.body;
+            if (!price || price <= 0) return res.status(400).send({ message: "Invalid price" });
+            const amount = parseInt(price * 100);
+
+            try {
+                const paymentIntent = await stripe.paymentIntents.create({
+                    amount: amount,
+                    currency: 'usd',
+                    payment_method_types: ['card']
+                });
+
+                res.send({ clientSecret: paymentIntent.client_secret });
+            } catch (error) {
+                res.status(500).send({ message: error.message });
             }
         });
 
