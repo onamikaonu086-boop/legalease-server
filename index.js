@@ -186,6 +186,19 @@ async function run() {
             }
         });
 
+        app.patch('/hiring-status/:id', async (req, res) => {
+            const id = req.params.id;
+            const { status } = req.body; // expected: 'accepted' or 'rejected'
+            try {
+                const filter = { _id: new ObjectId(id) };
+                const updatedDoc = { $set: { status: status } };
+                const result = await hiringsCollection.updateOne(filter, updatedDoc);
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Error updating status" });
+            }
+        });
+
     } finally {
     }
 }
