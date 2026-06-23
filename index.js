@@ -188,7 +188,7 @@ async function run() {
 
         app.patch('/hiring-status/:id', async (req, res) => {
             const id = req.params.id;
-            const { status } = req.body; // expected: 'accepted' or 'rejected'
+            const { status } = req.body;
             try {
                 const filter = { _id: new ObjectId(id) };
                 const updatedDoc = { $set: { status: status } };
