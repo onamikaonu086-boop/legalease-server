@@ -176,6 +176,16 @@ async function run() {
             }
         });
 
+        app.get('/lawyer/hiring-requests/:email', async (req, res) => {
+            const email = req.params.email;
+            try {
+                const result = await hiringsCollection.find({ lawyerEmail: email }).toArray();
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Error loading lawyer requests" });
+            }
+        });
+
     } finally {
     }
 }
