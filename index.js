@@ -279,6 +279,18 @@ async function run() {
             }
         });
 
+
+        // ------------------ ADMIN USER MANAGEMENT API ------------------
+
+        app.get('/users', async (req, res) => {
+            try {
+                const result = await usersCollection.find().toArray();
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Failed to fetch users" });
+            }
+        });
+
     } finally {
     }
 }
