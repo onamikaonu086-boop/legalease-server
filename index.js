@@ -341,7 +341,7 @@ async function run() {
 
         app.put('/lawyer/update/:email', async (req, res) => {
             const email = req.params.email;
-            const updatedData = req.body; 
+            const updatedData = req.body;
 
             try {
                 const filter = { email: email };
@@ -363,6 +363,19 @@ async function run() {
                 res.status(500).send({ message: "Failed to update profile" });
             }
         });
+
+        app.get('/lawyer/profile/:email', async (req, res) => {
+            const email = req.params.email;
+            try {
+                const result = await lawyerCollection.findOne({ email: email });
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Failed to fetch profile" });
+            }
+        });
+
+
+        
 
     } finally {
     }
