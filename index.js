@@ -269,6 +269,16 @@ async function run() {
             }
         });
 
+        app.delete('/reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            try {
+                const result = await reviewsCollection.deleteOne({ _id: new ObjectId(id) });
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Failed to delete review" });
+            }
+        });
+
     } finally {
     }
 }
