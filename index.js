@@ -237,6 +237,18 @@ async function run() {
             }
         });
 
+        // ------------------ REVIEW / COMMENT API ------------------
+
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            try {
+                const result = await reviewsCollection.insertOne(review);
+                res.send({ success: true, insertedId: result.insertedId });
+            } catch (error) {
+                res.status(500).send({ message: "Failed to add review" });
+            }
+        });
+
     } finally {
     }
 }
