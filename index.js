@@ -219,6 +219,24 @@ async function run() {
             }
         });
 
+        app.patch('/hiring-payment-success/:id', async (req, res) => {
+            const id = req.params.id;
+            const { transactionId } = req.body;
+            try {
+                const filter = { _id: new ObjectId(id) };
+                const updatedDoc = {
+                    $set: {
+                        status: 'paid',
+                        transactionId: transactionId
+                    }
+                };
+                const result = await hiringsCollection.updateOne(filter, updatedDoc);
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Failed to update payment status" });
+            }
+        });
+
     } finally {
     }
 }
