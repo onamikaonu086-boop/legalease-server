@@ -318,6 +318,25 @@ async function run() {
             }
         });
 
+        app.get('/admin/analytics', async (req, res) => {
+            try {
+                const totalUsers = await usersCollection.countDocuments();
+                const totalLawyers = await usersCollection.countDocuments({ role: 'lawyer' });
+
+                // টোটাল রেভিনিউ হিসাব করা (সব paid অ্যাপয়েন্টমেন্টের ফি যোগফল)
+                const paidAppointments = await hiringsCollection.find({ status: 'paid' }).toArray();
+                const totalRevenue = paidAppointments.reduce((sum, item) => sum + Number(item.fee || 0), 0);
+
+                res.send({
+                    totalUsers,
+                    totalLawyers,
+                    totalRevenue
+                });
+            } catch (error) {
+                res.status(500).send({ message: "Failed to calculate analytics" });
+            }
+        });
+
     } finally {
     }
 }
