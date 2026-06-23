@@ -249,6 +249,16 @@ async function run() {
             }
         });
 
+        app.get('/reviews/lawyer/:id', async (req, res) => {
+            const id = req.params.id;
+            try {
+                const result = await reviewsCollection.find({ lawyerId: id }).toArray();
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ message: "Failed to fetch reviews" });
+            }
+        });
+
     } finally {
     }
 }
