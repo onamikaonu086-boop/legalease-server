@@ -33,6 +33,7 @@ async function run() {
         const db = client.db("legalEaseDB");
         const lawyersCollection = db.collection("lawyers");
         const usersCollection = db.collection("users");
+        const hiringsCollection = db.collection("hirings");
 
         // ------------------ AUTH / JWT API ------------------
     
@@ -150,6 +151,18 @@ async function run() {
                 res.send(result);
             } catch (error) {
                 res.status(500).send({ message: "Invalid ID or server error" });
+            }
+        });
+
+
+        // ------------------HIRING SYSTEM API ------------------
+        app.post('/hiring-request', async (req, res) => {
+            const hiringData = req.body; 
+            try {
+                const result = await hiringsCollection.insertOne(hiringData);
+                res.send({ success: true, insertedId: result.insertedId });
+            } catch (error) {
+                res.status(500).send({ message: "Failed to process hiring request" });
             }
         });
 
