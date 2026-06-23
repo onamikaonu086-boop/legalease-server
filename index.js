@@ -337,6 +337,33 @@ async function run() {
             }
         });
 
+        // ------------------ LAWYER PROFILE UPDATE API ------------------
+
+        app.put('/lawyer/update/:email', async (req, res) => {
+            const email = req.params.email;
+            const updatedData = req.body; 
+
+            try {
+                const filter = { email: email };
+                const updatedDoc = {
+                    $set: {
+                        bio: updatedData.bio,
+                        fee: Number(updatedData.fee),
+                        status: updatedData.status
+                    }
+                };
+                const result = await lawyerCollection.updateOne(filter, updatedDoc);
+
+                if (result.modifiedCount > 0) {
+                    res.send({ success: true, message: "Profile updated successfully!" });
+                } else {
+                    res.send({ success: false, message: "No changes made or profile not found." });
+                }
+            } catch (error) {
+                res.status(500).send({ message: "Failed to update profile" });
+            }
+        });
+
     } finally {
     }
 }
