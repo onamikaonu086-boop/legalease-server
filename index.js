@@ -4,6 +4,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -138,7 +139,7 @@ async function run() {
             try {
                 const cursor = lawyersCollection.find(query);
                 const result = await cursor.toArray();
-                res.send({ result });
+                res.send(result);
             } catch (error) {
                 res.status(500).send({ message: "Error fetching lawyers data" });
             }
@@ -392,3 +393,5 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running beautifully on port ${port}`);
 });
+
+module.exports = app;
