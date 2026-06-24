@@ -89,7 +89,7 @@ async function run() {
             }).send({ success: true, token, user: newUser });
         });
 
-        
+
         app.post('/login', async (req, res) => {
             const { email, password } = req.body;
 
@@ -157,6 +157,21 @@ async function run() {
                 res.send(result);
             } catch (error) {
                 res.status(500).send({ message: "Invalid ID or server error" });
+            }
+        });
+
+        app.post('/lawyer/add', async (req, res) => {
+            const newLawyer = req.body;
+            try {
+                if (newLawyer.fee) {
+                    newLawyer.fee = Number(newLawyer.fee);
+                }
+
+                const result = await lawyersCollection.insertOne(newLawyer);
+                res.send({ success: true, insertedId: result.insertedId });
+            } catch (error) {
+                console.error("Error adding lawyer:", error);
+                res.status(500).send({ success: false, message: "Failed to add lawyer to database" });
             }
         });
 
@@ -380,7 +395,7 @@ async function run() {
         });
 
 
-        
+
 
     } finally {
     }
