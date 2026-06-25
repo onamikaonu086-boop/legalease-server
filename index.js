@@ -395,6 +395,28 @@ async function run() {
         });
 
 
+        // for testiong the connection to the database
+        app.get('/debug', async (req, res) => {
+            try {
+                await client.connect();
+                await client.db("admin").command({ ping: 1 });
+                res.send({
+                    status: "ok",
+                    mongo: "connected",
+                    env: {
+                        hasMongoUri: !!process.env.MONGO_URI,
+                        hasJwt: !!process.env.JWT_SECRET,
+                        nodeEnv: process.env.NODE_ENV
+                    }
+                });
+            } catch (err) {
+                res.status(500).send({
+                    status: "error",
+                    message: err.message
+                });
+            }
+        });
+
 
 
     } finally {
