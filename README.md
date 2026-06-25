@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+```markdown
+# 🌐 LegalEase Server - Enterprise Routing & Database Engine
 
-## Getting Started
+This is the robust, serverless-optimized backend engine powering the LegalEase platform. It handles secure data routing, asynchronous MongoDB pooling, and premium legal professional datasets.
 
-First, run the development server:
+## ✨ Features
+- **Serverless Architecture**: Fully configured for optimal deployment as Vercel Serverless Functions.
+- **Robust Routing**: Dedicated API endpoints for managing lawyers, bookings, and user profiles.
+- **Asynchronous DB Pooling**: Safe and sequential database handshake preventing connection blocks in production.
+- **Secure Middleware**: Global CORS handling and JSON payload parsing.
 
+## 🛠️ Tech Stack
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MongoDB Atlas (Official Driver)
+- **Configuration**: Dotenv, Vercel Node Runtime
+
+## 🚀 Getting Started
+
+### 1. Installation
+Navigate to the server directory and install the necessary dependencies:
 ```bash
+npm install
+2. Environment Variables
+Create a .env file in the root of your server directory and supply your credentials:
+
+Code snippet
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+STRIPE_SECRET_KEY=your_stripe_test_key
+3. Running Locally
+To run the server in development mode with automatic restarts:
+
+Bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The server will boot up locally at http://localhost:5000.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+📦 Production Deployment Configuration
+Vercel JSON Config (vercel.json)
+The routing matrix is handled safely via the following schema:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+JSON
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "index.js"
+    }
+  ]
+}
+Deployment Command
+To deploy directly via the Vercel CLI with cache-busting enabled:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Bash
+vercel --prod --force
