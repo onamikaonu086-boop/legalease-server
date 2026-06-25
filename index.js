@@ -400,14 +400,14 @@ async function run() {
     } finally {
     }
 }
-if (process.env.NODE_ENV !== 'production') {
-    run().then(() => {
-        app.listen(port, () => {
-            console.log(`Server running on port ${port}`);
-        });
-    }).catch(console.dir);
-} else {
-    run().catch(console.dir);
-}
+run().catch(console.dir);
+
+app.get('/', (req, res) => {
+    res.send('LegalEase Server is Flying!');
+});
+
+app.listen(port, () => {
+    console.log(`Server is running beautifully on port ${port}`);
+});
 
 module.exports = app;
